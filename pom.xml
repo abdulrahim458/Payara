@@ -146,6 +146,9 @@
 
     <properties>
         <dynamic.build.properties.version>0.0.1.a2</dynamic.build.properties.version>
+        <!-- SpotBugs version -->
+        <spotbugs.version>4.4.0</spotbugs.version>
+       <maven-surefire-report-plugin.version>3.0.0-M5</maven-surefire-report-plugin.version>
 
         <javase.version>${jdk.version}</javase.version>
         <!-- BOM-referenced versions -->
@@ -184,6 +187,44 @@
         <license-maven-plugin.version>2.4.0</license-maven-plugin.version>
     </properties>
 
+   <build>
+       <plugins>
+           <!-- SpotBugs Maven Plugin -->
+           <plugin>
+               <groupId>com.github.spotbugs</groupId>
+               <artifactId>spotbugs-maven-plugin</artifactId>
+               <version>${spotbugs.version}</version>
+               <executions>
+                   <execution>
+                       <id>spotbugs-check</id>
+                       <phase>verify</phase>
+                       <goals>
+                           <goal>check</goal>
+                       </goals>
+                   </execution>
+               </executions>
+           </plugin>
+           
+           <!-- Maven Surefire Report Plugin -->
+           <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-surefire-report-plugin</artifactId>
+               <version>${maven-surefire-report-plugin.version}</version>
+           </plugin>
+       </plugins>
+   </build>
+   
+   <reporting>
+       <plugins>
+           <!-- Maven Surefire Report Plugin for reporting -->
+           <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-surefire-report-plugin</artifactId>
+               <version>${maven-surefire-report-plugin.version}</version>
+           </plugin>
+       </plugins>
+   </reporting>
+   
     <profiles>
         <profile>
             <id>source</id>
