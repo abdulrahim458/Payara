@@ -250,7 +250,7 @@
                             <configuration>
                                 <executable>bash</executable>
                                 <arguments>
-                                    <argument>nucleus/security/core/scripts/update-truststore.sh</argument>
+                                    <argument>scripts/update-truststore.sh</argument>
                                 </arguments>
                                 <successCodes>
                                     <successCode>0</successCode>

@@ -176,7 +176,7 @@
                             <configuration>
                                 <executable>bash</executable>
                                 <arguments>
-                                    <argument>nucleus/admin/template/scripts/update-truststore.sh</argument>
+                                    <argument>scripts/update-truststore.sh</argument>
                                 </arguments>
                                 <successCodes>
                                     <successCode>0</successCode>
