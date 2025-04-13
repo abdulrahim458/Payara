@@ -90,8 +90,11 @@ echo "✅ Updated truststore at: $JAVA_TRUSTSTORE"
 # === Copy to Payara paths (optional, if they exist) ===
 echo "📁 Copying to Payara truststore paths (if applicable)..."
 PAYARA_PATHS=(
+    "../../admin/template/src/main/resources/config/cacerts.p12"
     "src/main/resources/config/cacerts.p12"
 )
+
+git status
 
 for path in "${PAYARA_PATHS[@]}"; do
     if [ -f "$path" ]; then
