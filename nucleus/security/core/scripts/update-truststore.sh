@@ -24,16 +24,16 @@ cp "$JAVA_TRUSTSTORE" "$TEMP_TRUSTSTORE"
 
 # === Remove certificates expiring within 90 days ===
 echo "🧹 Removing certificates expiring within 90 days..."
-
 keytool -list -v -keystore "$TEMP_TRUSTSTORE" -storepass "$TRUSTSTORE_PASSWORD" -storetype PKCS12 > certs-info.txt 2>/dev/null
 
 expired_aliases=()
 alias=""
+removed=0
+
 while IFS= read -r line; do
     if [[ "$line" == Alias\ name:* ]]; then
         alias=$(echo "$line" | awk '{print $3}')
     fi
-
     if [[ "$line" == *"Valid from:"* ]]; then
         expiry=$(echo "$line" | sed -n 's/.*until: //p')
         if [[ -n "$expiry" ]]; then
@@ -50,35 +50,46 @@ for alias in "${expired_aliases[@]}"; do
     if [[ -n "$alias" ]]; then
         echo "🗑️ Removing: $alias"
         keytool -delete -alias "$alias" -keystore "$TEMP_TRUSTSTORE" -storepass "$TRUSTSTORE_PASSWORD" -storetype PKCS12 || true
+        ((removed++))
     fi
 done
+
+echo "🧾 Total removed expired certs: $removed"
 
 # === Import Mozilla CA Certs (avoiding duplicates) ===
 echo "🌐 Downloading Mozilla CA certificates..."
 curl -sS -o mozilla.pem https://curl.se/ca/cacert.pem
-
 csplit -s mozilla.pem '/-----BEGIN CERTIFICATE-----/' '{*}' || true
 
 echo "➕ Importing Mozilla certs (no duplicates)..."
+
+imported=0
+skipped=0
+
 for cert in cert-*; do
     # Skip cert-00 which is often invalid
     if [[ "$cert" == "cert-00" ]]; then
         continue
     fi
-
     if openssl x509 -in "$cert" -noout > /dev/null 2>&1; then
         fingerprint=$(openssl x509 -noout -in "$cert" -fingerprint -sha256 | cut -d'=' -f2 | tr -d ':')
-        if [ -n "$fingerprint" ]; then
+        if [[ -n "$fingerprint" ]]; then
             exists=$(keytool -list -keystore "$TEMP_TRUSTSTORE" -storepass "$TRUSTSTORE_PASSWORD" -storetype PKCS12 -v | grep -i "$fingerprint" || true)
-            if [ -z "$exists" ]; then
+            if [[ -z "$exists" ]]; then
                 alias="mozilla-$(basename "$cert")"
-                keytool -importcert -keystore "$TEMP_TRUSTSTORE" -storepass "$TRUSTSTORE_PASSWORD" -storetype PKCS12 -noprompt -file "$cert" -alias "$alias" || echo "⚠️ Failed to import $cert"
+                keytool -importcert -keystore "$TEMP_TRUSTSTORE" -storepass "$TRUSTSTORE_PASSWORD" -storetype PKCS12 -noprompt -file "$cert" -alias "$alias" \
+                    && ((imported++)) || echo "⚠️ Failed to import $cert"
+            else
+                ((skipped++))
             fi
         fi
     else
         echo "⚠️ Skipping invalid cert: $cert"
     fi
 done
+
+echo "✅ Imported: $imported Mozilla certs"
+echo "⚠️ Skipped (already exists): $skipped"
 
 # Cleanup
 rm -f cert-* mozilla.pem certs-info.txt
@@ -87,11 +98,11 @@ rm -f cert-* mozilla.pem certs-info.txt
 cp -f "$TEMP_TRUSTSTORE" "$JAVA_TRUSTSTORE"
 echo "✅ Updated truststore at: $JAVA_TRUSTSTORE"
 
-# === Copy to Payara paths (optional, if they exist) ===
+# === Copy to Payara paths (optional) ===
 echo "📁 Copying to Payara truststore paths (if applicable)..."
 PAYARA_PATHS=(
-    #"nucleus/admin/template/src/main/resources/config/cacerts.p12"
-    "nucleus/security/core/src/main/resources/config/cacerts.p12"
+    "src/main/resources/config/cacerts.p12"
+    #"nucleus/security/core/src/main/resources/config/cacerts.p12"
 )
 
 for path in "${PAYARA_PATHS[@]}"; do
