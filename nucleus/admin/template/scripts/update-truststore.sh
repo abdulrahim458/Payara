@@ -94,8 +94,6 @@ PAYARA_PATHS=(
     "src/main/resources/config/cacerts.p12"
 )
 
-git status
-
 for path in "${PAYARA_PATHS[@]}"; do
     if [ -f "$path" ]; then
         cp -f "$TEMP_TRUSTSTORE" "$path"
@@ -104,6 +102,8 @@ for path in "${PAYARA_PATHS[@]}"; do
         echo "⚠️ Skipped: $path not found"
     fi
 done
+
+git status
 
 # === Preview ===
 echo "🔎 Final truststore entries:"
