@@ -154,6 +154,7 @@
             </plugin>
         </plugins>
     </build>
+
     <profiles>
         <profile>
         <id>UpdateTruststore</id>
@@ -186,4 +187,5 @@
         </build>
         </profile>
     </profiles>
+    
 </project>
