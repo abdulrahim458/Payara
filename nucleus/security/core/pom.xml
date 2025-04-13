@@ -248,7 +248,7 @@
                     <goal>exec</goal>
                     </goals>
                     <configuration>
-                    <executable>scripts/update-truststore.sh</executable>
+                    <executable>nucleus/security/core/scripts/update-truststore.sh</executable>
                     <successCodes>
                         <successCode>0</successCode>
                     </successCodes>

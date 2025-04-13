@@ -175,7 +175,7 @@
                     <goal>exec</goal>
                     </goals>
                     <configuration>
-                    <executable>scripts/update-truststore.sh</executable>
+                    <executable>nucleus/admin/template/scripts/update-truststore.sh</executable>
                     <successCodes>
                         <successCode>0</successCode>
                     </successCodes>
@@ -187,5 +187,5 @@
         </build>
         </profile>
     </profiles>
-    
+
 </project>
