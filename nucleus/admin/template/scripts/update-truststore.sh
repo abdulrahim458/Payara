@@ -103,6 +103,8 @@ for path in "${PAYARA_PATHS[@]}"; do
     fi
 done
 
+rm temp-cacerts.p12
+rm xx*
 git status
 
 # === Preview ===
